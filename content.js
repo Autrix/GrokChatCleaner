@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Configuration
-  const MAX_MESSAGES = 50; // Maximum number of messages before cleanup
-  const PRESERVE_MESSAGES = 10; // Number of recent messages to keep
-  const CHECK_INTERVAL = 5000; // Check every 5 seconds
+  const MAX_MESSAGES = 3; // Maximum number of messages before cleanup
+  const PRESERVE_MESSAGES = 2; // Number of recent messages to keep
+  const CHECK_INTERVAL = 15000; // Check every 15 seconds
 
   // Function to clean up old messages
   function cleanUpChat() {
