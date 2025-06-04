@@ -1,24 +1,23 @@
 {
-  "manifest_version": 3,
-  "name": "Grok Chat Cleaner Extension",
-  "version": "1.0",
-  "author": "Autrix",
-  "description": "Prevents crashes on grok.com by removing old chat content.",
-  "permissions": [
-    "activeTab",
-    "storage"
-  ],
-  "host_permissions": [
-    "https://grok.com/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": ["https://grok.com/*", "https://www.grok.com/chat/*", "https://chat.grok.com/*", 
-                 "https://grok.com/chat/*", "https://grok.com/*/*", "https://chat.grok.com/*/*", "https://www.grok.com/*/*"],
-      "js": ["content.js"]
+    "manifest_version": 3,
+    "name": "Grok Chat Cleaner Extension",
+    "version": "1.0",
+    "author": "Autrix",
+    "description": "Prevents crashes on grok.com by removing old chat content.",
+    "permissions": [
+        "activeTab",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://*.grok.com/*"
+    ],
+        "content_scripts": [
+        {
+            "matches": ["https://*.grok.com/*"],
+            "js": ["content.js"]
+        }
+        ],
+    "action": {
+        "default_popup": "popup.html"
     }
-  ],
-  "action": {
-    "default_popup": "popup.html"
-  }
 }
