@@ -7,28 +7,28 @@ console.log('Grok Chat Cleaner content script loaded on', window.location.href);
 
 // Function to extract messages from HTML
 function extractMessages(doc) {
-  // Select all message bubble containers
+  console.log('Extracting messages from document');
   const messageBubbles = doc.querySelectorAll('.message-bubble');
+  console.log(`Found ${messageBubbles.length} message bubbles`);
 
-  // Array to store extracted messages with their DOM elements
   const messages = [];
 
-  messageBubbles.forEach((bubble) => {
-    // Determine if it's a user or assistant message based on parent alignment
+  messageBubbles.forEach((bubble, index) => {
     const parent = bubble.closest('.items-end, .items-start');
-    if (!parent) return; // Skip if no alignment class found
+    if (!parent) {
+      console.log(`Bubble ${index}: No parent with items-end or items-start found`);
+      return;
+    }
 
     let role, content;
 
     if (parent.classList.contains('items-end')) {
-      // User message: Look for span with whitespace-pre-wrap
       const userSpan = bubble.querySelector('span.whitespace-pre-wrap');
       if (userSpan) {
         role = 'user';
         content = userSpan.textContent.trim();
       }
     } else if (parent.classList.contains('items-start')) {
-      // Assistant message: Look for p within response-content-markdown
       const assistantPara = bubble.querySelector('.response-content-markdown p.break-words');
       if (assistantPara) {
         role = 'assistant';
@@ -36,9 +36,11 @@ function extractMessages(doc) {
       }
     }
 
-    // Add valid message to array with reference to parent element
     if (role && content) {
       messages.push({ role, content, element: parent });
+      console.log(`Bubble ${index}: ${role} - "${content.substring(0, 20)}..."`);
+    } else {
+      console.log(`Bubble ${index}: No valid message content found`);
     }
   });
 
@@ -46,14 +48,13 @@ function extractMessages(doc) {
 }
 
 function cleanUpChat() {
-  // Use the current document as the DOM context
+  console.log('Running cleanUpChat');
   const chatContainer = document.querySelector('.w-full.flex.flex-col.max-w-3xl') || document.body;
   if (!chatContainer) {
-    console.log('Chat container not found.');
+    console.log('Chat container not found');
     return;
   }
 
-  // Extract messages using the provided function
   const messages = extractMessages(document);
   console.log(`Found ${messages.length} chat messages`);
 
@@ -65,22 +66,27 @@ function cleanUpChat() {
         console.log(`Removed message ${i + 1}: ${messages[i].role} - "${messages[i].content.substring(0, 20)}..."`);
       }
     }
-    console.log(`Removed ${messagesToRemove} old chat messages to prevent crashes.`);
+    console.log(`Removed ${messagesToRemove} old chat messages to prevent crashes`);
   } else {
-    console.log('No messages to remove or insufficient messages.');
+    console.log('No messages to remove or insufficient messages');
   }
 }
 
-// Run cleanup periodically
+// Run cleanup initially
 cleanUpChat();
 setInterval(cleanUpChat, CHECK_INTERVAL);
 
 // Observe dynamic chat updates
-const observer = new MutationObserver(cleanUpChat);
+const observer = new MutationObserver(() => {
+  console.log('Mutation detected, running cleanUpChat');
+  cleanUpChat();
+});
+const chatContainer = document.querySelector('.w-full.flex.flex-col.max-w-3xl') || document.body;
 observer.observe(chatContainer, { childList: true, subtree: true });
 
 // Handle manual cleanup requests from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Received message:', request);
   if (request.action === 'cleanChat') {
     cleanUpChat();
     sendResponse({ status: '200' });
